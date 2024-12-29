@@ -36,6 +36,7 @@ func main() {
 	r.HandleFunc("/api/stops", api.FetchRouteStops(fetchData)).Methods("GET")   // Route for fetching stops
 	r.HandleFunc("/api/shapes", api.FetchRouteShapes(fetchData)).Methods("GET") // Route for fetching shapes
 	r.HandleFunc("/api/live", api.UpdateLivePosition(fetchData)).Methods("GET") // Route for fetching live data (vehicle locations)
+	r.HandleFunc("/api/routes", api.FetchRoutes(fetchData)).Methods("GET")
 
 	// Start the server on port 8080 and log any errors that occur
 	log.Printf("Server is listening on port %s...\n", "8080")
