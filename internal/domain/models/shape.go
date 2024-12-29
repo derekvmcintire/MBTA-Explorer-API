@@ -13,3 +13,8 @@ type ShapeAttributes struct {
 type ShapeResponse struct {
 	Data []Shape `json:"data"`
 }
+
+type DecodedRouteShape struct {
+	RouteID     string
+	Coordinates [][][]float64
+}

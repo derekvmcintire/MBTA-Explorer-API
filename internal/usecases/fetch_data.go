@@ -10,7 +10,7 @@ type FetchData interface {
 	// GetStops fetches a list of stops for a given route ID
 	GetStops(routeID string) ([]models.Stop, error)
 
-	GetShapes(routeID string) ([]models.Shape, error)
+	GetShapes(routeID string) (models.DecodedRouteShape, error)
 
 	// GetLiveData fetches live vehicle data for a given route ID
 	GetLiveData(routeID string) ([]models.Vehicle, error)
@@ -35,7 +35,7 @@ func (f *fetchData) GetStops(routeID string) ([]models.Stop, error) {
 	return f.client.FetchStops(routeID)
 }
 
-func (f *fetchData) GetShapes(routeID string) ([]models.Shape, error) {
+func (f *fetchData) GetShapes(routeID string) (models.DecodedRouteShape, error) {
 	return f.client.FetchShapes(routeID)
 }
 
