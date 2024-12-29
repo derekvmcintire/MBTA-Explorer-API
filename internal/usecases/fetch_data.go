@@ -10,6 +10,8 @@ type FetchData interface {
 	// GetStops fetches a list of stops for a given route ID
 	GetStops(routeID string) ([]models.Stop, error)
 
+	GetShapes(routeID string) ([]models.Shape, error)
+
 	// GetLiveData fetches live vehicle data for a given route ID
 	GetLiveData(routeID string) ([]models.Vehicle, error)
 }
@@ -31,6 +33,10 @@ func NewFetchData(client data.MBTAClient) FetchData {
 func (f *fetchData) GetStops(routeID string) ([]models.Stop, error) {
 	// Call FetchStops on the client and return the result or any error
 	return f.client.FetchStops(routeID)
+}
+
+func (f *fetchData) GetShapes(routeID string) ([]models.Shape, error) {
+	return f.client.FetchShapes(routeID)
 }
 
 // GetLiveData retrieves live vehicle data for the given routeID

@@ -34,6 +34,7 @@ func main() {
 
 	// Set up API routes and map them to corresponding handler functions
 	r.HandleFunc("/api/stops", api.FetchStops(fetchData)).Methods("GET")    // Route for fetching stops
+	r.HandleFunc("/api/shapes", api.FetchShapes(fetchData)).Methods("GET")  // Route for fetching shapes
 	r.HandleFunc("/api/live", api.UpdateLiveData(fetchData)).Methods("GET") // Route for fetching live data (vehicle locations)
 
 	// Start the server on port 8080 and log any errors that occur

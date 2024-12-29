@@ -7,6 +7,22 @@ import (
 	"net/http"                   // Import the net/http package to handle HTTP requests and responses
 )
 
+func FetchShapes(fetchData usecases.FetchData) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		routeID := r.URL.Query().Get("route_id")
+		shapes, err := fetchData.GetShapes(routeID)
+
+		if err != nil {
+			log.Println("got sum err in FetchShapes: ", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(shapes)
+	}
+}
+
 // FetchStops is an HTTP handler function that returns the list of stops for a given route.
 // It extracts the route ID from the request query parameters and calls the FetchData service to retrieve stops data.
 func FetchStops(fetchData usecases.FetchData) http.HandlerFunc {

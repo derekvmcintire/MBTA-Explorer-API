@@ -15,7 +15,8 @@ const mbtaAPIBase = "https://api-v3.mbta.com"
 
 // MBTAClient is an interface that defines methods for fetching stops and live vehicle data from the MBTA API
 type MBTAClient interface {
-	FetchStops(routeID string) ([]models.Stop, error)       // Method to fetch stops for a given route
+	FetchStops(routeID string) ([]models.Stop, error) // Method to fetch stops for a given route
+	FetchShapes(routeID string) ([]models.Shape, error)
 	FetchLiveData(routeID string) ([]models.Vehicle, error) // Method to fetch live vehicle data for a given route
 }
 
@@ -71,6 +72,19 @@ func (m *mbtaClientImpl) fetchData(endpoint string) ([]byte, error) {
 
 	// Return the response body as raw data
 	return body, nil
+}
+
+func (m *mbtaClientImpl) FetchShapes(routeID string) ([]models.Shape, error) {
+	endpoint := fmt.Sprintf("%s/shapes?filter[route]=%s", mbtaAPIBase, routeID)
+	data, err := m.fetchData(endpoint)
+	if err != nil {
+		return nil, err
+	}
+	var shapeResponse models.ShapeResponse
+	if err := json.Unmarshal([]byte(data), &shapeResponse); err != nil {
+		log.Fatal(err) // Log a fatal error if unmarshalling fails (this will stop execution)
+	}
+	return shapeResponse.Data, nil
 }
 
 // FetchStops fetches the list of stops for a given route ID from the MBTA API
