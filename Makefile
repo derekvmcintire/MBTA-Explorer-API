@@ -19,7 +19,7 @@ build:
 # Run the Go project locally
 .PHONY: run
 run:
-	$(GO_CMD) run main.go
+	$(GO_CMD) run cmd/api/main.go
 
 # Format Go code
 .PHONY: fmt
