@@ -3,6 +3,7 @@ package data
 import (
 	"encoding/json"                   // Import the json package to handle JSON encoding and decoding
 	"explorer/internal/domain/models" // Import the models package to work with the application data structures
+	"explorer/internal/utils"         // Import the utils package for helper functions
 	"fmt"                             // Import the fmt package for formatted I/O operations like string formatting
 	"io"                              // Import the io package for handling I/O operations like reading from a body
 	"log"                             // Import the log package for logging important information
@@ -13,10 +14,11 @@ import (
 // Define the base URL for the MBTA API
 const mbtaAPIBase = "https://api-v3.mbta.com"
 
-// MBTAClient is an interface that defines methods for fetching stops and live vehicle data from the MBTA API
+// MBTAClient is an interface that defines methods for fetching stops, shapes, and live vehicle data from the MBTA API
 type MBTAClient interface {
-	FetchStops(routeID string) ([]models.Stop, error)       // Method to fetch stops for a given route
-	FetchLiveData(routeID string) ([]models.Vehicle, error) // Method to fetch live vehicle data for a given route
+	FetchStops(routeID string) ([]models.Stop, error)             // Method to fetch stops for a given route
+	FetchShapes(routeID string) (models.DecodedRouteShape, error) // Method to fetch shapes for a given route
+	FetchLiveData(routeID string) ([]models.Vehicle, error)       // Method to fetch live vehicle data for a given route
 }
 
 // mbtaClientImpl is the implementation of the MBTAClient interface
@@ -37,11 +39,10 @@ func NewMBTAClient(apiKey string) MBTAClient {
 // fetchData is a helper method that makes a GET request to the given endpoint
 // It returns the raw response body as a byte slice or an error if something goes wrong
 func (m *mbtaClientImpl) fetchData(endpoint string) ([]byte, error) {
-
 	// Create a new GET request with the given endpoint
 	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
-		log.Println("Error building the request?") // Log if there's an error creating the request
+		log.Println("Error building the request") // Log if there's an error creating the request
 		return nil, err
 	}
 
@@ -51,14 +52,14 @@ func (m *mbtaClientImpl) fetchData(endpoint string) ([]byte, error) {
 	// Execute the request using the HTTP client
 	resp, err := m.client.Do(req)
 	if err != nil {
-		log.Println("error after the response is sent") // Log if there's an error executing the request
+		log.Println("Error after the response is sent") // Log if there's an error executing the request
 		return nil, err
 	}
 	defer resp.Body.Close() // Ensure the response body is closed after use
 
 	// Check if the response status code is not OK (200)
 	if resp.StatusCode != http.StatusOK {
-		log.Println("status code not ok") // Log if the status code is not OK
+		log.Println("Status code not OK") // Log if the status code is not OK
 		return nil, fmt.Errorf("error fetching data: %v", resp.Status)
 	}
 
@@ -73,6 +74,37 @@ func (m *mbtaClientImpl) fetchData(endpoint string) ([]byte, error) {
 	return body, nil
 }
 
+// FetchShapes fetches the shape data for a given route ID from the MBTA API
+func (m *mbtaClientImpl) FetchShapes(routeID string) (models.DecodedRouteShape, error) {
+	// Format the endpoint URL to include the route ID in the query parameters
+	endpoint := fmt.Sprintf("%s/shapes?filter[route]=%s", mbtaAPIBase, routeID)
+
+	// Call fetchData to get the raw data from the API
+	data, err := m.fetchData(endpoint)
+	if err != nil {
+		return models.DecodedRouteShape{}, fmt.Errorf("failed to fetch shapes: %w", err)
+	}
+
+	// Declare a variable to hold the response data
+	var shapeResponse models.ShapeResponse
+
+	// Unmarshal the raw JSON data into the shapeResponse variable
+	if err := json.Unmarshal(data, &shapeResponse); err != nil {
+		log.Fatal(err) // Log a fatal error if unmarshalling fails (this will stop execution)
+	}
+
+	// Decode the shape data into coordinates
+	var decodedRouteShape models.DecodedRouteShape
+	decodedRouteShape.RouteID = routeID
+	decodedRouteShape.Coordinates, err = utils.DecodeShapes(shapeResponse.Data)
+	if err != nil {
+		return models.DecodedRouteShape{}, fmt.Errorf("failed to decode shapes: %w", err)
+	}
+
+	// Return the decoded route shape
+	return decodedRouteShape, nil
+}
+
 // FetchStops fetches the list of stops for a given route ID from the MBTA API
 func (m *mbtaClientImpl) FetchStops(routeID string) ([]models.Stop, error) {
 	// Format the endpoint URL to include the route ID in the query parameters
@@ -80,17 +112,15 @@ func (m *mbtaClientImpl) FetchStops(routeID string) ([]models.Stop, error) {
 
 	// Call fetchData to get the raw data from the API
 	data, err := m.fetchData(endpoint)
-
-	// If there's an error fetching the data, return the error
 	if err != nil {
-		return nil, err
+		return nil, err // Return the error if fetching the data fails
 	}
 
 	// Declare a variable to hold the response data (which is a list of stops)
 	var stopsResponse models.StopsResponse
 
 	// Unmarshal the raw JSON data into the stopsResponse variable
-	if err := json.Unmarshal([]byte(data), &stopsResponse); err != nil {
+	if err := json.Unmarshal(data, &stopsResponse); err != nil {
 		log.Fatal(err) // Log a fatal error if unmarshalling fails (this will stop execution)
 	}
 
