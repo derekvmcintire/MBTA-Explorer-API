@@ -1,6 +1,8 @@
 package core
 
-import "explorer/internal/domain/models"
+import (
+	"explorer/internal/domain/models"
+)
 
 // FetchData is an interface that defines the methods for fetching stops and live vehicle data
 type FetchFromMBTAUseCase interface {
