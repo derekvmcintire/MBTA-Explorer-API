@@ -94,7 +94,7 @@ func (m *mbtaClientImpl) FetchLiveData(routeID string) ([]models.Vehicle, error)
 	}
 
 	// Declare a variable to hold the list of vehicles
-	var vehicles []models.Vehicle
+	var vehicles models.VehicleResponse
 
 	// Unmarshal the raw JSON data into the vehicles slice
 	if err := json.Unmarshal(data, &vehicles); err != nil {
@@ -102,5 +102,5 @@ func (m *mbtaClientImpl) FetchLiveData(routeID string) ([]models.Vehicle, error)
 	}
 
 	// Return the list of vehicles
-	return vehicles, nil
+	return vehicles.Data, nil
 }
