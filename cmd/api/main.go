@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/mux"   // Import the Gorilla Mux router for routing HTTP requests
 	"github.com/joho/godotenv" // Import the godotenv package to load environment variables from .env file
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -38,7 +39,18 @@ func main() {
 	r.HandleFunc("/api/live", api.UpdateLivePosition(fetchData)).Methods("GET") // Route for fetching live data (vehicle locations)
 	r.HandleFunc("/api/routes", api.FetchRoutes(fetchData)).Methods("GET")
 
+	// Configure CORS options
+	corsOptions := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"},         // Allow frontend's origin
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},  // Allowed HTTP methods
+		AllowedHeaders:   []string{"Content-Type", "Authorization"}, // Allowed headers
+		AllowCredentials: true,                                      // Allow credentials (e.g., cookies, authorization headers)
+	})
+
+	// Apply CORS middleware to the router
+	handler := corsOptions.Handler(r)
+
 	// Start the server on port 8080 and log any errors that occur
 	log.Printf("Server is listening on port %s...\n", "8080")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }
