@@ -1,12 +1,13 @@
 package main
 
 import (
-	"explorer/internal/adapters/api"  // Import API package for route handlers
-	"explorer/internal/adapters/data" // Import data package for interacting with the MBTA API
-	"explorer/internal/config"        // Import config package for loading and handling configuration (API keys)
-	"explorer/internal/usecases"      // Import usecases package for business logic
-	"log"                             // Import log package for logging messages
-	"net/http"                        // Import net/http package to start the web server and handle HTTP requests
+	"explorer/internal/adapters/api"     // Import API package for route handlers
+	"explorer/internal/adapters/data"    // Import data package for interacting with the MBTA API
+	"explorer/internal/config/apiConfig" // Import config package for loading and handling configuration (API keys)
+	"explorer/internal/config/memoryConfig"
+	"explorer/internal/usecases" // Import usecases package for business logic
+	"log"                        // Import log package for logging messages
+	"net/http"                   // Import net/http package to start the web server and handle HTTP requests
 
 	"github.com/gorilla/mux"   // Import the Gorilla Mux router for routing HTTP requests
 	"github.com/joho/godotenv" // Import the godotenv package to load environment variables from .env file
@@ -28,10 +29,12 @@ func main() {
 	}
 
 	// Retrieve the API key from the environment using the config package
-	key := config.GetAPIKey()
+	key := apiConfig.GetAPIKey()
+
+	cache := memoryConfig.MemcachedConfig()
 
 	// Initialize the use case layer by creating a FetchData instance with the MBTA client
-	fetchData := usecases.NewFetchData(data.NewMBTAClient(key))
+	fetchData := usecases.NewFetchData(data.NewMBTAClient(key), cache)
 
 	// Set up API routes and map them to corresponding handler functions
 	r.HandleFunc("/api/stops", api.FetchRouteStops(fetchData)).Methods("GET")   // Route for fetching stops
