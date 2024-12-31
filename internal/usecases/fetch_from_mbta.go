@@ -56,6 +56,7 @@ func (f *fetchFromMBTAUseCaseImpl) GetShapes(routeID string) (models.DecodedRout
 		log.Println("Cache hit for GetShapes:", routeID)
 		var shapes models.DecodedRouteShape
 		if err := json.Unmarshal(item.Value, &shapes); err == nil {
+			log.Println("successfully got value from cache")
 			return shapes, nil
 		}
 		log.Println("Failed to unmarshal cached data, fetching fresh data.")
