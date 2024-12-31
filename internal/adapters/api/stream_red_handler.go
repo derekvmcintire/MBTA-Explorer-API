@@ -1,14 +1,15 @@
 package api
 
 import (
-	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 )
 
-// streamVehiclesHandler proxies the MBTA streaming data to the frontend
-func StreamVehiclesHandler(w http.ResponseWriter, _ *http.Request) {
+func StreamVehiclesHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("******** Starting stream ***********")
+
 	apiKey := os.Getenv("MBTA_API_KEY")
 	if apiKey == "" {
 		http.Error(w, "API key not configured", http.StatusInternalServerError)
@@ -20,44 +21,56 @@ func StreamVehiclesHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
-	// Forward the stream from the MBTA API to the client
-	url := fmt.Sprintf("https://api-v3.mbta.com/vehicles?filter[route]=Red&api_key=%s", apiKey)
-	resp, err := http.Get(url)
+	// Build the MBTA API request
+	url := "https://api-v3.mbta.com/vehicles?filter[route]=Red"
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error connecting to MBTA API: %v", err), http.StatusInternalServerError)
+		http.Error(w, "Failed to create request to MBTA API", http.StatusInternalServerError)
+		log.Printf("Failed to create request: %v", err)
+		return
+	}
+
+	req.Header.Set("Accept", "text/event-stream")
+	req.Header.Set("X-API-Key", apiKey)
+
+	// Use an HTTP client to perform the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		http.Error(w, "Failed to connect to MBTA API", http.StatusInternalServerError)
+		log.Printf("Failed to connect to MBTA API: %v", err)
 		return
 	}
 	defer resp.Body.Close()
 
-	// Ensure the MBTA API response is an event stream
 	if resp.Header.Get("Content-Type") != "text/event-stream" {
+		log.Println("Content-Type is: ", resp.Header.Get("Content-Type"))
+		log.Println("******** MBTA Response not a stream ***********")
 		http.Error(w, "Invalid response from MBTA API", http.StatusInternalServerError)
 		return
 	}
 
-	// Stream the MBTA data to the client
-	_, err = w.Write([]byte(": Streaming MBTA data\n\n")) // Initial comment to keep connection alive
-	if err != nil {
-		log.Printf("Error writing to client: %v", err)
-		return
+	log.Println("******** Streaming data to client ***********")
+
+	// Use http.CloseNotifier to handle client disconnects
+	notify := w.(http.CloseNotifier).CloseNotify()
+	go func() {
+		<-notify
+		log.Println("Client closed connection")
+		resp.Body.Close()
+	}()
+
+	flusher := w.(http.Flusher)
+	flusher.Flush()
+
+	// Stream data from the MBTA API to the client
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		if err == io.EOF {
+			log.Println("Stream ended normally.")
+		} else {
+			log.Printf("Error streaming data: %v", err)
+		}
 	}
 
-	buffer := make([]byte, 1024)
-	for {
-		// Read from MBTA API response
-		n, readErr := resp.Body.Read(buffer)
-		if n > 0 {
-			// Write data to the frontend client
-			_, writeErr := w.Write(buffer[:n])
-			if writeErr != nil {
-				log.Printf("Error writing to client: %v", writeErr)
-				break
-			}
-			w.(http.Flusher).Flush() // Ensure data is sent immediately
-		}
-		if readErr != nil {
-			log.Printf("Error reading from MBTA API: %v", readErr)
-			break
-		}
-	}
+	log.Println("******** Stream ended ***********")
 }
