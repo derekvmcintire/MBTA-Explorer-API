@@ -22,7 +22,7 @@ func StreamVehiclesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 
 	// Build the MBTA API request
-	url := "https://api-v3.mbta.com/vehicles?filter[route]=Red"
+	url := "https://api-v3.mbta.com/vehicles?filter[route]=Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E,Mattapan"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		http.Error(w, "Failed to create request to MBTA API", http.StatusInternalServerError)
@@ -52,10 +52,10 @@ func StreamVehiclesHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("******** Streaming data to client ***********")
 
-	// Use http.CloseNotifier to handle client disconnects
-	notify := w.(http.CloseNotifier).CloseNotify()
+	// Use r.Context() to handle client disconnects
+	ctx := r.Context()
 	go func() {
-		<-notify
+		<-ctx.Done()
 		log.Println("Client closed connection")
 		resp.Body.Close()
 	}()
