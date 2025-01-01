@@ -1,13 +1,19 @@
 package main
 
 import (
+	"context"
 	"explorer/internal/adapters/api"     // Import API package for route handlers
 	"explorer/internal/adapters/data"    // Import data package for interacting with the MBTA API
 	"explorer/internal/config/apiConfig" // Import config package for loading and handling configuration (API keys)
 	"explorer/internal/config/memoryConfig"
+	"explorer/internal/stream"
 	"explorer/internal/usecases" // Import usecases package for business logic
 	"log"                        // Import log package for logging messages
 	"net/http"                   // Import net/http package to start the web server and handle HTTP requests
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/gorilla/mux"   // Import the Gorilla Mux router for routing HTTP requests
 	"github.com/joho/godotenv" // Import the godotenv package to load environment variables from .env file
@@ -35,6 +41,32 @@ func main() {
 
 	// Initialize the use case layer by creating a FetchData instance with the MBTA client
 	fetchData := usecases.NewFetchData(data.NewMBTAClient(key), cache)
+
+	sm := stream.MBTAStreamManager
+
+	// Context for graceful shutdown
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Start streaming MBTA data
+	go func() {
+		if key == "" {
+			log.Fatal("MBTA_API_KEY environment variable not set")
+		}
+
+		url := "https://api-v3.mbta.com/vehicles?filter[route]=Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E,Mattapan"
+		sm.StartStreaming(ctx, url, key)
+	}()
+
+	// Handle shutdown signals
+	go func() {
+		sigChan := make(chan os.Signal, 1)
+		signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+		<-sigChan
+		cancel()
+		time.Sleep(1 * time.Second) // Give goroutines time to clean up
+		os.Exit(0)
+	}()
 
 	// Set up API routes and map them to corresponding handler functions
 	r.HandleFunc("/api/stops", api.FetchRouteStops(fetchData)).Methods("GET")   // Route for fetching stops
