@@ -25,7 +25,7 @@ func (f *fetchFromMBTAUseCaseImpl) GetStops(routeID string) ([]models.Stop, erro
 	cacheKey := "stops:" + routeID
 	item, err := f.cache.Get(cacheKey)
 	if err == nil {
-		log.Println("Cache hit for GetStops:", routeID)
+		// log.Println("Cache hit for GetStops:", routeID)
 		var stops []models.Stop
 		if err := json.Unmarshal(item.Value, &stops); err == nil {
 			return stops, nil
@@ -53,10 +53,10 @@ func (f *fetchFromMBTAUseCaseImpl) GetShapes(routeID string) (models.DecodedRout
 	cacheKey := "shapes:" + routeID
 	item, err := f.cache.Get(cacheKey)
 	if err == nil {
-		log.Println("Cache hit for GetShapes:", routeID)
+		// log.Println("Cache hit for GetShapes:", routeID)
 		var shapes models.DecodedRouteShape
 		if err := json.Unmarshal(item.Value, &shapes); err == nil {
-			log.Println("successfully got value from cache")
+			// log.Println("successfully got value from cache")
 			return shapes, nil
 		}
 		log.Println("Failed to unmarshal cached data, fetching fresh data.")

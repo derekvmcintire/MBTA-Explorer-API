@@ -41,6 +41,7 @@ func main() {
 	r.HandleFunc("/api/shapes", api.FetchRouteShapes(fetchData)).Methods("GET") // Route for fetching shapes
 	r.HandleFunc("/api/live", api.UpdateLivePosition(fetchData)).Methods("GET") // Route for fetching live data (vehicle locations)
 	r.HandleFunc("/api/routes", api.FetchRoutes(fetchData)).Methods("GET")
+	r.HandleFunc("/stream/vehicles", api.StreamVehiclesHandler)
 
 	// Configure CORS options
 	corsOptions := cors.New(cors.Options{
