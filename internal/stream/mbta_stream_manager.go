@@ -55,8 +55,9 @@ func (sm *StreamManager) Broadcast(data string) {
 }
 
 // StartStreaming connects to the MBTA API and continuously streams data to clients.
-func (sm *StreamManager) StartStreaming(ctx context.Context, url, apiKey string) {
+func (sm *StreamManager) StartStreaming(ctx context.Context, apiKey string) {
 	go func() { // Run streaming logic in a separate goroutine
+		url := "https://api-v3.mbta.com/vehicles?filter[route]=Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E,Mattapan"
 		// Create a new HTTP GET request with the given context
 		req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 		if err != nil {

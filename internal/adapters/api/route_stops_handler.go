@@ -9,7 +9,7 @@ import (
 
 // FetchRouteStops is an HTTP handler function that returns the list of stops for a given route.
 // It extracts the route ID from the request query parameters and calls the FetchData service to retrieve stops data.
-func FetchRouteStops(useCases core.FetchFromMBTAUseCase) http.HandlerFunc {
+func FetchRouteStops(useCases core.MbtaApiHelper) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the route ID from the query parameters of the URL (e.g., /stops?route_id=Red)
 		routeID := r.URL.Query().Get("route_id")
