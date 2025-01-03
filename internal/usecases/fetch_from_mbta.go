@@ -15,8 +15,8 @@ type fetchFromMBTAUseCaseImpl struct {
 	cache  *memcache.Client // Cache client for storing and retrieving data
 }
 
-// NewFetchData initializes fetchFromMBTAUseCaseImpl with a client and cache
-func NewFetchData(client data.MBTAClient, cache *memcache.Client) core.FetchFromMBTAUseCase {
+// NewMbtaApiHelper initializes fetchFromMBTAUseCaseImpl with a client and cache
+func NewMbtaApiHelper(client data.MBTAClient, cache *memcache.Client) core.MbtaApiHelper {
 	return &fetchFromMBTAUseCaseImpl{client: client, cache: cache}
 }
 

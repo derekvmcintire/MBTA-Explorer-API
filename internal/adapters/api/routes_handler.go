@@ -11,7 +11,7 @@ import (
 
 // FetchRoutes is an HTTP handler function that returns all relevant data (stops and shapes)
 // for a list of route IDs provided in the request query parameters.
-func FetchRoutes(useCases core.FetchFromMBTAUseCase) http.HandlerFunc {
+func FetchRoutes(useCases core.MbtaApiHelper) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("request received...")
 
