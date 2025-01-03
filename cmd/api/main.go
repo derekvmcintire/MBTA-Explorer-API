@@ -4,6 +4,7 @@ import (
 	"explorer/internal/adapters/data"    // Import data package for interacting with the MBTA API
 	"explorer/internal/config/apiConfig" // Import config package for loading and handling configuration (API keys)
 	"explorer/internal/config/memoryConfig"
+	"explorer/internal/constants"
 	"explorer/internal/middleware"
 	"explorer/internal/routes"
 	"explorer/internal/stream"
@@ -30,7 +31,7 @@ func main() {
 	cache := memoryConfig.MemcachedConfig()
 
 	// Initialize streaming of MBTA data
-	cancelStream := stream.InitializeStream(key)
+	cancelStream := stream.InitializeStream(constants.MbtaVehicleLiveStreamUrl, key)
 	defer cancelStream() // Ensure the stream is canceled on application exit
 
 	// Initialize the use case layer by creating an mbtaApiHelper instance with the MBTA client
