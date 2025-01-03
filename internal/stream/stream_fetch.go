@@ -8,9 +8,9 @@ import (
 )
 
 // fetchStream handles the HTTP request logic and returns the response body.
-func (sm *StreamManager) fetchStream(ctx context.Context, apiKey string) (io.ReadCloser, error) {
+func (sm *StreamManager) fetchStream(ctx context.Context, url, apiKey string) (io.ReadCloser, error) {
 	// Create a new HTTP GET request with the given context
-	req, err := sm.createRequest(ctx, sm.url, apiKey)
+	req, err := sm.createRequest(ctx, url, apiKey)
 	if err != nil {
 		return nil, err
 	}

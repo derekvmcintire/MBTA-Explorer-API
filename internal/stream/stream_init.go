@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func InitializeStream(apiKey string) context.CancelFunc {
+func InitializeStream(url, apiKey string) context.CancelFunc {
 	// Initialize the stream manager
 	sm := MBTAStreamManager
 
@@ -22,7 +22,7 @@ func InitializeStream(apiKey string) context.CancelFunc {
 			log.Fatal("MBTA_API_KEY environment variable not set")
 		}
 
-		sm.StartStreaming(ctx, apiKey)
+		sm.StartStreaming(ctx, url, apiKey)
 	}()
 
 	// Handle shutdown signals
