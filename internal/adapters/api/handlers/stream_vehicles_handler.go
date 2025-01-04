@@ -1,7 +1,7 @@
-package api
+package handlers
 
 import (
-	"explorer/internal/stream"
+	"explorer/internal/infrastructure/stream"
 	"net/http"
 )
 

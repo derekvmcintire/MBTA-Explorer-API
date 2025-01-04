@@ -1,4 +1,4 @@
-package memory
+package data
 
 import "github.com/bradfitz/gomemcache/memcache"
 

@@ -1,8 +1,8 @@
-package api
+package handlers
 
 import (
 	"encoding/json"
-	"explorer/internal/ports/core"
+	"explorer/internal/core"
 	"log"
 	"net/http"
 )

@@ -1,4 +1,4 @@
-package apiConfig
+package config
 
 import "os"
 

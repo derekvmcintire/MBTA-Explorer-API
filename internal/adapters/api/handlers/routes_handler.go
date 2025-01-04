@@ -1,12 +1,12 @@
-package api
+package handlers
 
 import (
-	"encoding/json"                         // Import the json package for JSON encoding/decoding
-	"explorer/internal/ports/core"          // Import core ports for accessing use case implementations
-	"explorer/internal/ports/http/response" // Import response models for structured API responses
-	"log"                                   // Import the log package for logging errors and information
-	"net/http"                              // Import net/http for building HTTP handlers
-	"strings"                               // Import strings package to handle string operations like splitting
+	"encoding/json"                           // Import the json package for JSON encoding/decoding
+	"explorer/internal/adapters/api/response" // Import response models for structured API responses
+	"explorer/internal/core"                  // Import core ports for accessing use case implementations
+	"log"                                     // Import the log package for logging errors and information
+	"net/http"                                // Import net/http for building HTTP handlers
+	"strings"                                 // Import strings package to handle string operations like splitting
 )
 
 // FetchRoutes is an HTTP handler function that returns all relevant data (stops and shapes)

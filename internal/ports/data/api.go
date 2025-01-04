@@ -1,8 +1,6 @@
 package data
 
-import (
-	"explorer/internal/domain/models"
-)
+import "explorer/internal/core/domain/models"
 
 // MBTAClient is an interface that defines methods for fetching stops, shapes, and live vehicle data from the MBTA API
 type MBTAClient interface {

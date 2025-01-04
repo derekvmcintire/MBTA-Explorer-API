@@ -1,10 +1,8 @@
 package core
 
-import (
-	"explorer/internal/domain/models"
-)
+import "explorer/internal/core/domain/models"
 
-// FetchData is an interface that defines the methods for fetching stops and live vehicle data
+// MbtaApiHelper is an interface that defines the methods for fetching stops and live vehicle data
 type MbtaApiHelper interface {
 	// GetStops fetches a list of stops for a given route ID
 	GetStops(routeID string) ([]models.Stop, error)

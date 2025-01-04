@@ -1,6 +1,6 @@
 package response
 
-import "explorer/internal/domain/models"
+import "explorer/internal/core/domain/models"
 
 type GetRouteResponse struct {
 	ID          string        `json:"id"`

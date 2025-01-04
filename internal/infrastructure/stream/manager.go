@@ -3,7 +3,14 @@ package stream
 import (
 	"context"
 	"log"
+	"sync"
 )
+
+type StreamManager struct {
+	clients      map[chan string]struct{} // Map to store connected client channels
+	clientsMutex sync.Mutex               // Mutex to safely update the clients map
+	stop         chan struct{}            // Channel to signal when to stop streaming
+}
 
 // StartStreaming connects to the MBTA API and continuously streams data to clients.
 func (sm *StreamManager) StartStreaming(ctx context.Context, url, apiKey string) {

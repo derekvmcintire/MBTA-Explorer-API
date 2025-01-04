@@ -2,9 +2,9 @@ package data
 
 import (
 	"encoding/json"
-	"explorer/internal/domain/models"
+	"explorer/internal/core/domain/models"
+	"explorer/internal/pkg"
 	"explorer/internal/ports/data"
-	"explorer/internal/utils"
 	"fmt"
 	"log"
 	"net/http"
@@ -50,7 +50,7 @@ func (m *mbtaClientImpl) FetchShapes(routeID string) (models.DecodedRouteShape, 
 	// Decode the shape data into coordinates
 	var decodedRouteShape models.DecodedRouteShape
 	decodedRouteShape.RouteID = routeID
-	decodedRouteShape.Coordinates, err = utils.DecodeShapes(shapeResponse.Data)
+	decodedRouteShape.Coordinates, err = pkg.DecodeShapes(shapeResponse.Data)
 	if err != nil {
 		return models.DecodedRouteShape{}, fmt.Errorf("failed to decode shapes: %w", err)
 	}
