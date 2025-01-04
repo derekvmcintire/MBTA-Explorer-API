@@ -10,7 +10,7 @@ func (sm *StreamManager) Broadcast(data string) {
 		select {
 		case client <- data: // Send data to the client channel
 		default: // Skip clients that are too slow to keep up
-			log.Println("Client is slow, skipping...")
+			log.Println("Stream Manager Client is slow, skipping...")
 		}
 	}
 }

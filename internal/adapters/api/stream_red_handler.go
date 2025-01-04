@@ -11,7 +11,7 @@ func StreamVehiclesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
-	clientChan := make(chan string)
+	clientChan := make(chan string, 100)
 	stream.MBTAStreamManager.AddClient(clientChan)
 
 	defer stream.MBTAStreamManager.RemoveClient(clientChan)
