@@ -18,5 +18,3 @@ func NewStreamManager() *StreamManager {
 
 // Global instance of MBTAStreamManager
 var MBTAStreamManager = NewStreamManager()
-
-// "https://api-v3.mbta.com/vehicles?filter[route]=Red,Orange,Blue,Green-B,Green-C,Green-D,Green-E,Mattapan"
