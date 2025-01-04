@@ -1,9 +1,9 @@
-package utils
+package pkg
 
 import (
-	"errors"                          // Import the errors package to create and handle errors
-	"explorer/internal/domain/models" // Import the models package to work with the application's data structures
-	"log"                             // Import the log package for logging information
+	"errors" // Import the errors package to create and handle errors
+	"explorer/internal/core/domain/models"
+	"log" // Import the log package for logging information
 
 	"github.com/twpayne/go-polyline" // Import the go-polyline package to decode polyline strings
 )

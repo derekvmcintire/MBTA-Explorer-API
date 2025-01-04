@@ -1,19 +1,18 @@
 package main
 
 import (
-	"explorer/internal/adapters/data"    // Import data package for interacting with the MBTA API
-	"explorer/internal/config/apiConfig" // Import config package for loading and handling configuration (API keys)
-	"explorer/internal/config/memoryConfig"
+	"explorer/internal/adapters/data"
+	apiHttp "explorer/internal/adapters/http"
 	"explorer/internal/constants"
-	"explorer/internal/middleware"
-	"explorer/internal/routes"
-	"explorer/internal/stream"
-	"explorer/internal/usecases" // Import usecases package for business logic
-	"log"                        // Import log package for logging messages
-	"net/http"                   // Import net/http package to start the web server and handle HTTP requests
+	"explorer/internal/infrastructure/config"
+	"explorer/internal/infrastructure/middleware"
+	"explorer/internal/infrastructure/stream"
+	"explorer/internal/usecases"
+	"log"
+	"net/http"
 
-	"github.com/gorilla/mux"   // Import the Gorilla Mux router for routing HTTP requests
-	"github.com/joho/godotenv" // Import the godotenv package to load environment variables from .env file
+	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -25,10 +24,10 @@ func main() {
 	}
 
 	// Retrieve the API key from the environment using the config package
-	key := apiConfig.GetAPIKey()
+	key := config.GetAPIKey()
 
 	// Initialize the memcached client
-	cache := memoryConfig.MemcachedConfig()
+	cache := config.MemcachedConfig()
 
 	// Initialize streaming of MBTA data
 	cancelStream := stream.InitializeStream(constants.MbtaVehicleLiveStreamUrl, key)
@@ -41,7 +40,7 @@ func main() {
 	r := mux.NewRouter()
 
 	// Register the routes with the router
-	routes.RegisterRoutes(r, mbtaApiHelper)
+	apiHttp.RegisterRoutes(r, mbtaApiHelper)
 
 	// Configure CORS
 	corsHandler := middleware.SetCorsHandler(r)

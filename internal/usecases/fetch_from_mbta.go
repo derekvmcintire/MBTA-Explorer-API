@@ -2,26 +2,26 @@ package usecases
 
 import (
 	"encoding/json"
-	"explorer/internal/domain/models"
-	"explorer/internal/ports/core"
+	"explorer/internal/core"
+	"explorer/internal/core/domain/models"
 	"explorer/internal/ports/data"
 	"log"
 
 	"github.com/bradfitz/gomemcache/memcache"
 )
 
-type fetchFromMBTAUseCaseImpl struct {
+type MbtaApiHelperImpl struct {
 	client data.MBTAClient  // The client used to fetch data from the MBTA API
 	cache  *memcache.Client // Cache client for storing and retrieving data
 }
 
 // NewMbtaApiHelper initializes fetchFromMBTAUseCaseImpl with a client and cache
 func NewMbtaApiHelper(client data.MBTAClient, cache *memcache.Client) core.MbtaApiHelper {
-	return &fetchFromMBTAUseCaseImpl{client: client, cache: cache}
+	return &MbtaApiHelperImpl{client: client, cache: cache}
 }
 
 // GetStops retrieves a list of stops for the given routeID with caching
-func (f *fetchFromMBTAUseCaseImpl) GetStops(routeID string) ([]models.Stop, error) {
+func (f *MbtaApiHelperImpl) GetStops(routeID string) ([]models.Stop, error) {
 	cacheKey := "stops:" + routeID
 	item, err := f.cache.Get(cacheKey)
 	if err == nil {
@@ -49,7 +49,7 @@ func (f *fetchFromMBTAUseCaseImpl) GetStops(routeID string) ([]models.Stop, erro
 }
 
 // GetShapes retrieves a list of decoded coordinates for the given routeID with caching
-func (f *fetchFromMBTAUseCaseImpl) GetShapes(routeID string) (models.DecodedRouteShape, error) {
+func (f *MbtaApiHelperImpl) GetShapes(routeID string) (models.DecodedRouteShape, error) {
 	cacheKey := "shapes:" + routeID
 	item, err := f.cache.Get(cacheKey)
 	if err == nil {
@@ -78,6 +78,6 @@ func (f *fetchFromMBTAUseCaseImpl) GetShapes(routeID string) (models.DecodedRout
 }
 
 // GetLiveData retrieves live vehicle data for the given routeID without caching
-func (f *fetchFromMBTAUseCaseImpl) GetLiveData(routeID string) ([]models.Vehicle, error) {
+func (f *MbtaApiHelperImpl) GetLiveData(routeID string) ([]models.Vehicle, error) {
 	return f.client.FetchLiveData(routeID)
 }

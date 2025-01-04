@@ -1,13 +1,5 @@
 package stream
 
-import "sync"
-
-type StreamManager struct {
-	clients      map[chan string]struct{} // Map to store connected client channels
-	clientsMutex sync.Mutex               // Mutex to safely update the clients map
-	stop         chan struct{}            // Channel to signal when to stop streaming
-}
-
 // NewStreamManager initializes and returns a new StreamManager instance.
 func NewStreamManager() *StreamManager {
 	return &StreamManager{

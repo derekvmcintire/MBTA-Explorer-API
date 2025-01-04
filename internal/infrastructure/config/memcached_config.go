@@ -1,4 +1,4 @@
-package memoryConfig
+package config
 
 import (
 	"log"
