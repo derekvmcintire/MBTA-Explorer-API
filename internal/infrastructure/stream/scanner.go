@@ -10,6 +10,7 @@ import (
 
 // scanStream processes the response body stream and handles server-sent events (SSE).
 func (sm *StreamManager) scanStream(ctx context.Context, responseBody io.Reader) {
+	log.Println("scanStream has been called")
 	scanner := bufio.NewScanner(responseBody)
 	buffer := make([]byte, 1024*1024) // Set a 1 MB buffer size
 	scanner.Buffer(buffer, len(buffer))

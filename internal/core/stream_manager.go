@@ -4,9 +4,10 @@ import (
 	"context"
 )
 
-type StreamManager interface {
-	StartStreaming(ctx context.Context, apiKey string)
+type MbtaStreamManager interface {
+	Start(ctx context.Context, apiKey string)
 	AddClient(client chan string)
 	RemoveClient(client chan string)
 	Stop()
+	cancelFunc() context.CancelFunc
 }

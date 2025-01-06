@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"explorer/internal/constants"
+	"explorer/internal/infrastructure/config"
 	"explorer/internal/infrastructure/stream"
+	"log"
 	"net/http"
 )
 
@@ -9,25 +12,34 @@ import (
 // This function sets up SSE headers, registers the client with the StreamManager,
 // and streams data until the client disconnects.
 func StreamVehiclesHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("received request to stream vehicles")
+	sm := stream.NewStreamManager()
+
+	url := constants.MbtaVehicleLiveStreamUrl
+
+	apiKey := config.GetAPIKey()
+
+	sm.EnsureStreaming(url, apiKey)
+
 	// Set headers to establish the response as an SSE stream.
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
-	// Create a buffered channel for this client to receive data.
+	// Create a buffered channel for this client togit receive data.
 	clientChan := make(chan string, 100)
 
 	// Register the client channel with the StreamManager.
-	stream.MBTAStreamManager.AddClient(clientChan)
+	sm.AddClient(clientChan)
 
 	// Ensure the client is removed from the StreamManager when the function exits.
-	defer stream.MBTAStreamManager.RemoveClient(clientChan)
+	defer sm.RemoveClient(clientChan)
 
 	// Monitor for client disconnection and remove the client when disconnected.
 	ctx := r.Context()
 	go func() {
 		<-ctx.Done() // Wait for the context to signal cancellation.
-		stream.MBTAStreamManager.RemoveClient(clientChan)
+		sm.RemoveClient(clientChan)
 	}()
 
 	// Assert that the ResponseWriter supports the http.Flusher interface for streaming.

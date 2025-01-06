@@ -3,10 +3,8 @@ package main
 import (
 	"explorer/internal/adapters/data"
 	apiHttp "explorer/internal/adapters/http"
-	"explorer/internal/constants"
 	"explorer/internal/infrastructure/config"
 	"explorer/internal/infrastructure/middleware"
-	"explorer/internal/infrastructure/stream"
 	"explorer/internal/usecases"
 	"log"
 	"net/http"
@@ -28,10 +26,6 @@ func main() {
 
 	// Initialize the memcached client
 	cache := config.MemcachedConfig()
-
-	// Initialize streaming of MBTA data
-	cancelStream := stream.InitializeStream(constants.MbtaVehicleLiveStreamUrl, key)
-	defer cancelStream() // Ensure the stream is canceled on application exit
 
 	// Initialize the use case layer by creating an mbtaApiHelper instance with the MBTA client
 	mbtaApiHelper := usecases.NewMbtaApiHelper(data.NewMBTAClient(key), cache)

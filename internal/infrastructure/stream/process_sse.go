@@ -2,6 +2,7 @@ package stream
 
 import (
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -9,6 +10,7 @@ import (
 // This function processes the raw event string, extracts relevant fields, and formats them
 // into an SSE-compliant message before sending it to the Broadcast function.
 func (sm *StreamManager) processSSE(event string) {
+	log.Println("processSSE has been called")
 	// Split the event string into individual lines to process each line separately.
 	lines := strings.Split(event, "\n")
 

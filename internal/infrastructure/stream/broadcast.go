@@ -6,6 +6,7 @@ import "log"
 // This method ensures thread-safe access to the client map and skips clients
 // that are unable to keep up with the data flow.
 func (sm *StreamManager) Broadcast(data string) {
+	log.Println("Broadcast has been called")
 	// Acquire the mutex lock to safely access the client map.
 	sm.clientsMutex.Lock()
 	defer sm.clientsMutex.Unlock() // Ensure the mutex is unlocked after the operation.
