@@ -17,6 +17,14 @@ type StreamManager struct {
 	cancelFunc   context.CancelFunc
 }
 
+// NewStreamManager initializes and returns a new StreamManager instance.
+func NewStreamManager() *StreamManager {
+	return &StreamManager{
+		clients: make(map[chan string]struct{}),
+		stop:    make(chan struct{}),
+	}
+}
+
 var streamOnce sync.Once
 
 func (sm *StreamManager) EnsureStreaming(url, apiKey string) {
