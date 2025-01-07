@@ -20,9 +20,8 @@ type StreamManager struct {
 var streamOnce sync.Once
 
 func (sm *StreamManager) EnsureStreaming(url, apiKey string) {
-	log.Println("Ensure Streaming")
 	streamOnce.Do(func() {
-		log.Println("Doing this once")
+		log.Println("Ensuring streaming is started...")
 		// Create a new context with cancellation support
 		ctx, cancel := context.WithCancel(context.Background())
 		sm.cancelFunc = cancel // Store the cancel function

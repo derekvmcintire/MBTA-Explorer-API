@@ -4,13 +4,11 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 )
 
 // fetchStream handles the HTTP request logic and returns the response body.
 func (sm *StreamManager) fetchStream(ctx context.Context, url, apiKey string) (io.ReadCloser, error) {
-	log.Println("FetchStream has been called")
 	// Create a new HTTP GET request with the given context
 	req, err := sm.createRequest(ctx, url, apiKey)
 	if err != nil {

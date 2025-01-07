@@ -5,6 +5,7 @@ import (
 	apiHttp "explorer/internal/adapters/http"
 	"explorer/internal/infrastructure/config"
 	"explorer/internal/infrastructure/middleware"
+	"explorer/internal/infrastructure/stream"
 	"explorer/internal/usecases"
 	"log"
 	"net/http"
@@ -33,8 +34,10 @@ func main() {
 	// Initialize a new Gorilla Mux router
 	r := mux.NewRouter()
 
+	sm := stream.NewStreamManager()
+
 	// Register the routes with the router
-	apiHttp.RegisterRoutes(r, mbtaApiHelper)
+	apiHttp.RegisterRoutes(r, mbtaApiHelper, sm)
 
 	// Configure CORS
 	corsHandler := middleware.SetCorsHandler(r)

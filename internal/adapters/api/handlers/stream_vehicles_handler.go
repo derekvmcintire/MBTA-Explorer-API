@@ -5,16 +5,23 @@ import (
 	"explorer/internal/infrastructure/config"
 	"explorer/internal/infrastructure/stream"
 	"explorer/internal/usecases"
-	"log"
 	"net/http"
 )
 
-func StreamVehiclesHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("received request to stream vehicles")
+type StreamVehiclesHandler struct {
+	streamManager *stream.StreamManager
+	useCase       *usecases.StreamVehiclesUseCase
+}
 
-	// Initialize dependencies
-	sm := stream.NewStreamManager()
-	useCase := usecases.NewStreamVehiclesUseCase(sm)
+func NewStreamVehiclesHandler(sm *stream.StreamManager) *StreamVehiclesHandler {
+	return &StreamVehiclesHandler{
+		streamManager: sm,
+		useCase:       usecases.NewStreamVehiclesUseCase(sm),
+	}
+}
+
+// Changed method name from StreamVehiclesHandler to ServeHTTP
+func (h *StreamVehiclesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Set up SSE headers
 	w.Header().Set("Content-Type", "text/event-stream")
@@ -22,14 +29,14 @@ func StreamVehiclesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 
 	// Set up the stream and get client channel
-	clientChan := useCase.StreamSetup(
+	clientChan := h.useCase.StreamSetup(
 		constants.MbtaVehicleLiveStreamUrl,
 		config.GetAPIKey(),
 	)
-	defer sm.RemoveClient(clientChan)
+	defer h.streamManager.RemoveClient(clientChan)
 
 	// Handle client disconnection
-	useCase.HandleDisconnect(r.Context(), clientChan)
+	h.useCase.HandleDisconnect(r.Context(), clientChan)
 
 	// Stream data to client
 	flusher := w.(http.Flusher)
