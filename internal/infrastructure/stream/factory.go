@@ -8,5 +8,5 @@ func NewStreamManager() *StreamManager {
 	}
 }
 
-// Global instance of MBTAStreamManager
-var MBTAStreamManager = NewStreamManager()
+// // Global instance of MBTAStreamManager
+// var MBTAStreamManager = NewStreamManager()

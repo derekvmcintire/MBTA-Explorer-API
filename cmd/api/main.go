@@ -3,7 +3,6 @@ package main
 import (
 	"explorer/internal/adapters/data"
 	apiHttp "explorer/internal/adapters/http"
-	"explorer/internal/constants"
 	"explorer/internal/infrastructure/config"
 	"explorer/internal/infrastructure/middleware"
 	"explorer/internal/infrastructure/stream"
@@ -29,18 +28,16 @@ func main() {
 	// Initialize the memcached client
 	cache := config.MemcachedConfig()
 
-	// Initialize streaming of MBTA data
-	cancelStream := stream.InitializeStream(constants.MbtaVehicleLiveStreamUrl, key)
-	defer cancelStream() // Ensure the stream is canceled on application exit
-
 	// Initialize the use case layer by creating an mbtaApiHelper instance with the MBTA client
 	mbtaApiHelper := usecases.NewMbtaApiHelper(data.NewMBTAClient(key), cache)
 
 	// Initialize a new Gorilla Mux router
 	r := mux.NewRouter()
 
+	sm := stream.NewStreamManager()
+
 	// Register the routes with the router
-	apiHttp.RegisterRoutes(r, mbtaApiHelper)
+	apiHttp.RegisterRoutes(r, mbtaApiHelper, sm)
 
 	// Configure CORS
 	corsHandler := middleware.SetCorsHandler(r)

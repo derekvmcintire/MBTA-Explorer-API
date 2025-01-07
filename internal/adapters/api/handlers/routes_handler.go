@@ -13,13 +13,9 @@ import (
 // for a list of route IDs provided in the request query parameters.
 func FetchRoutes(useCases core.MbtaApiHelper) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("request received...")
 
 		// Extract the route IDs from the query parameter (e.g., /routes?route_ids=Red,Orange,Blue)
 		strRouteIDs := r.URL.Query().Get("route_ids")
-
-		log.Println("fetching routes...")
-		log.Println("routes are: ", strRouteIDs)
 
 		// Split the comma-separated route IDs into a slice of strings
 		routeIDs := strings.Split(strRouteIDs, ",")

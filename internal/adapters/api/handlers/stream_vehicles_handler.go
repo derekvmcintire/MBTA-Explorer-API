@@ -1,44 +1,47 @@
 package handlers
 
 import (
+	"explorer/internal/constants"
+	"explorer/internal/infrastructure/config"
 	"explorer/internal/infrastructure/stream"
+	"explorer/internal/usecases"
 	"net/http"
 )
 
-// StreamVehiclesHandler handles the streaming of vehicle data to clients via Server-Sent Events (SSE).
-// This function sets up SSE headers, registers the client with the StreamManager,
-// and streams data until the client disconnects.
-func StreamVehiclesHandler(w http.ResponseWriter, r *http.Request) {
-	// Set headers to establish the response as an SSE stream.
+type StreamVehiclesHandler struct {
+	streamManager *stream.StreamManager
+	useCase       *usecases.StreamVehiclesUseCase
+}
+
+func NewStreamVehiclesHandler(sm *stream.StreamManager) *StreamVehiclesHandler {
+	return &StreamVehiclesHandler{
+		streamManager: sm,
+		useCase:       usecases.NewStreamVehiclesUseCase(sm),
+	}
+}
+
+// Changed method name from StreamVehiclesHandler to ServeHTTP
+func (h *StreamVehiclesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	// Set up SSE headers
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
-	// Create a buffered channel for this client to receive data.
-	clientChan := make(chan string, 100)
+	// Set up the stream and get client channel
+	clientChan := h.useCase.StreamSetup(
+		constants.MbtaVehicleLiveStreamUrl,
+		config.GetAPIKey(),
+	)
+	defer h.streamManager.RemoveClient(clientChan)
 
-	// Register the client channel with the StreamManager.
-	stream.MBTAStreamManager.AddClient(clientChan)
+	// Handle client disconnection
+	h.useCase.HandleDisconnect(r.Context(), clientChan)
 
-	// Ensure the client is removed from the StreamManager when the function exits.
-	defer stream.MBTAStreamManager.RemoveClient(clientChan)
-
-	// Monitor for client disconnection and remove the client when disconnected.
-	ctx := r.Context()
-	go func() {
-		<-ctx.Done() // Wait for the context to signal cancellation.
-		stream.MBTAStreamManager.RemoveClient(clientChan)
-	}()
-
-	// Assert that the ResponseWriter supports the http.Flusher interface for streaming.
+	// Stream data to client
 	flusher := w.(http.Flusher)
-
-	// Continuously stream data from the client channel to the response.
 	for data := range clientChan {
-		// Write the data to the HTTP response.
 		_, _ = w.Write([]byte(data))
-
-		// Flush the data immediately to ensure the client receives it in real-time.
 		flusher.Flush()
 	}
 }

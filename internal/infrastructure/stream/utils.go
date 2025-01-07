@@ -2,7 +2,9 @@ package stream
 
 import (
 	"context"
+	"log"
 	"net/http"
+	"time"
 )
 
 // createRequest creates an HTTP request for streaming data from the MBTA API.
@@ -40,6 +42,45 @@ func (sm *StreamManager) RemoveClient(client chan string) {
 		delete(sm.clients, client)
 		close(client)
 	}
+}
+
+// stream/utils.go - updated Start method
+func (sm *StreamManager) Start(ctx context.Context, url, apiKey string) {
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				log.Println("Context cancelled, stopping stream")
+				return
+			default:
+				respBody, err := sm.fetchStream(ctx, url, apiKey)
+				if err != nil {
+					log.Printf("Failed to fetch stream: %v", err)
+					// Add a small delay before retrying to prevent tight loops on persistent errors
+					time.Sleep(time.Second * 5)
+					continue
+				}
+
+				// Start stream processing in a separate goroutine
+				processDone := make(chan struct{})
+				go func() {
+					defer close(processDone)
+					defer respBody.Close()
+					sm.scanStream(ctx, respBody)
+				}()
+
+				// Wait for either context cancellation or stream processing to finish
+				select {
+				case <-ctx.Done():
+					respBody.Close()
+					return
+				case <-processDone:
+					log.Println("Stream processing ended, will retry")
+					// Continue the outer loop to restart the stream
+				}
+			}
+		}
+	}()
 }
 
 // Stop stops the stream manager and signals all processes to stop.
