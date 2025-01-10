@@ -1,4 +1,4 @@
-package core
+package usecases
 
 import "explorer/internal/core/domain/models"
 
