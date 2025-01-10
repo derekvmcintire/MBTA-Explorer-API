@@ -1,7 +1,8 @@
-package stream
+package usecases
 
 import (
 	"context"
+	ports "explorer/internal/ports/streaming"
 	"log"
 	"os"
 	"os/signal"
@@ -10,24 +11,22 @@ import (
 	"time"
 )
 
-type StreamManager struct {
-	clients      map[chan string]struct{} // Map to store connected client channels
-	clientsMutex sync.Mutex               // Mutex to safely update the clients map
-	stop         chan struct{}            // Channel to signal when to stop streaming
-	cancelFunc   context.CancelFunc
+type StreamManagerUseCase struct {
+	source      ports.StreamSource
+	Distributor ports.StreamDistributor
+	cancelFunc  context.CancelFunc
 }
 
-// NewStreamManager initializes and returns a new StreamManager instance.
-func NewStreamManager() *StreamManager {
-	return &StreamManager{
-		clients: make(map[chan string]struct{}),
-		stop:    make(chan struct{}),
+func NewStreamManagerUseCase(source ports.StreamSource, Distributor ports.StreamDistributor) *StreamManagerUseCase {
+	return &StreamManagerUseCase{
+		source:      source,
+		Distributor: Distributor,
 	}
 }
 
 var streamOnce sync.Once
 
-func (sm *StreamManager) EnsureStreaming(url, apiKey string) {
+func (sm *StreamManagerUseCase) EnsureStreaming(url, apiKey string) {
 	streamOnce.Do(func() {
 		log.Println("Ensuring streaming is started...")
 		// Create a new context with cancellation support
@@ -42,7 +41,7 @@ func (sm *StreamManager) EnsureStreaming(url, apiKey string) {
 			}
 
 			// Start the MBTA stream with the provided URL and API key
-			sm.Start(ctx, url, apiKey)
+			sm.source.Start(ctx, url, apiKey)
 		}()
 
 		// Handle system shutdown signals (e.g., SIGINT, SIGTERM) in a separate goroutine

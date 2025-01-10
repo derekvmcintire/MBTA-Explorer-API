@@ -2,10 +2,11 @@ package main
 
 import (
 	"explorer/internal/adapters/data"
+	"explorer/internal/adapters/distribute"
 	apiHttp "explorer/internal/adapters/http"
+	mbta "explorer/internal/adapters/mbta/stream"
 	"explorer/internal/infrastructure/config"
 	"explorer/internal/infrastructure/middleware"
-	"explorer/internal/infrastructure/stream"
 	"explorer/internal/usecases"
 	"log"
 	"net/http"
@@ -34,8 +35,9 @@ func main() {
 	// Initialize a new Gorilla Mux router
 	r := mux.NewRouter()
 
-	sm := stream.NewStreamManager()
-
+	distributor := distribute.NewClientDistributor()
+	source := mbta.NewMBTAStreamSource(distributor)
+	sm := usecases.NewStreamManagerUseCase(source, distributor)
 	// Register the routes with the router
 	apiHttp.RegisterRoutes(r, mbtaApiHelper, sm)
 

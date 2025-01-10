@@ -3,17 +3,16 @@ package handlers
 import (
 	"explorer/internal/constants"
 	"explorer/internal/infrastructure/config"
-	"explorer/internal/infrastructure/stream"
 	"explorer/internal/usecases"
 	"net/http"
 )
 
 type StreamVehiclesHandler struct {
-	streamManager *stream.StreamManager
+	streamManager *usecases.StreamManagerUseCase
 	useCase       *usecases.StreamVehiclesUseCase
 }
 
-func NewStreamVehiclesHandler(sm *stream.StreamManager) *StreamVehiclesHandler {
+func NewStreamVehiclesHandler(sm *usecases.StreamManagerUseCase) *StreamVehiclesHandler {
 	return &StreamVehiclesHandler{
 		streamManager: sm,
 		useCase:       usecases.NewStreamVehiclesUseCase(sm),
@@ -33,7 +32,7 @@ func (h *StreamVehiclesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 		constants.MbtaVehicleLiveStreamUrl,
 		config.GetAPIKey(),
 	)
-	defer h.streamManager.RemoveClient(clientChan)
+	defer h.streamManager.Distributor.RemoveClient(clientChan)
 
 	// Handle client disconnection
 	h.useCase.HandleDisconnect(r.Context(), clientChan)
