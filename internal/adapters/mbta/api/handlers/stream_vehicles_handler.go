@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"explorer/internal/constants"
+	"explorer/internal/core/usecases"
 	"explorer/internal/infrastructure/config"
 	ports "explorer/internal/ports/streaming"
-	"explorer/internal/usecases"
 	"net/http"
 )
 

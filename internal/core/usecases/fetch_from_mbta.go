@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"encoding/json"
-	"explorer/internal/core"
 	"explorer/internal/core/domain/models"
 	"explorer/internal/ports/data"
 	"log"
@@ -16,7 +15,7 @@ type MbtaApiHelperImpl struct {
 }
 
 // NewMbtaApiHelper initializes fetchFromMBTAUseCaseImpl with a client and cache
-func NewMbtaApiHelper(client data.MBTAClient, cache *memcache.Client) core.MbtaApiHelper {
+func NewMbtaApiHelper(client data.MBTAClient, cache *memcache.Client) MbtaApiHelper {
 	return &MbtaApiHelperImpl{client: client, cache: cache}
 }
 

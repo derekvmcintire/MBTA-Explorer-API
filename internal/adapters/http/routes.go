@@ -2,7 +2,7 @@ package http
 
 import (
 	"explorer/internal/adapters/mbta/api/handlers"
-	"explorer/internal/core"
+	"explorer/internal/core/usecases"
 	ports "explorer/internal/ports/streaming"
 
 	"github.com/gorilla/mux"
@@ -14,7 +14,7 @@ import (
 // - router: The Gorilla Mux router used to define the HTTP endpoints.
 // - mbtaApiHelper: Helper interface for interacting with the MBTA API.
 // - sm: StreamManagerUseCase responsible for managing vehicle streaming.
-func RegisterRoutes(router *mux.Router, mbtaApiHelper core.MbtaApiHelper, sm ports.StreamManager) {
+func RegisterRoutes(router *mux.Router, mbtaApiHelper usecases.MbtaApiHelper, sm ports.StreamManager) {
 
 	// Initialize handlers for each route
 	streamHandler := handlers.NewStreamVehiclesHandler(sm)            // Handles streaming of vehicle data
