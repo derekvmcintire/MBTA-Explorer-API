@@ -13,14 +13,14 @@ import (
 
 type StreamManagerUseCase struct {
 	source      ports.StreamSource
-	Distributor ports.StreamDistributor
+	distributor ports.StreamDistributor
 	cancelFunc  context.CancelFunc
 }
 
 func NewStreamManagerUseCase(source ports.StreamSource, Distributor ports.StreamDistributor) *StreamManagerUseCase {
 	return &StreamManagerUseCase{
 		source:      source,
-		Distributor: Distributor,
+		distributor: Distributor,
 	}
 }
 
@@ -60,4 +60,29 @@ func (sm *StreamManagerUseCase) EnsureStreaming(url, apiKey string) {
 			os.Exit(0)
 		}()
 	})
+}
+
+// Start delegates to the underlying StreamSource
+func (sm *StreamManagerUseCase) Start(ctx context.Context, url, apiKey string) {
+	sm.source.Start(ctx, url, apiKey) // Delegate to the actual StreamDistributor
+}
+
+// AddClient delegates to the underlying StreamDistributor
+func (sm *StreamManagerUseCase) AddClient(client chan string) {
+	sm.distributor.AddClient(client) // Delegate to the actual StreamDistributor
+}
+
+// RemoveClient delegates to the underlying StreamDistributor
+func (sm *StreamManagerUseCase) RemoveClient(client chan string) {
+	sm.distributor.RemoveClient(client) // Delegate to the actual StreamDistributor
+}
+
+// Broadcast delegates to the underlying StreamDistributor
+func (sm *StreamManagerUseCase) Broadcast(data string) {
+	sm.distributor.Broadcast(data) // Delegate to the actual StreamDistributor
+}
+
+// Stop delegates to the underlying StreamDistributor
+func (sm *StreamManagerUseCase) Stop() {
+	sm.distributor.Stop() // Delegate to the actual StreamDistributor
 }

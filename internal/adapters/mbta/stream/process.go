@@ -5,37 +5,44 @@ import (
 	"strings"
 )
 
-// processSSE parses a complete Server-Sent Events (SSE) message and broadcasts it to all connected clients.
-// This function processes the raw event string, extracts relevant fields, and formats them
-// into an SSE-compliant message before sending it to the Broadcast function.
+// processSSE parses a Server-Sent Events (SSE) message, extracts its fields,
+// formats it into an SSE-compliant message, and broadcasts it to connected clients.
+//
+// Parameters:
+// - event: The raw SSE event string received from the server.
+//
+// Functionality:
+// - Splits the raw event string into lines to parse individual fields.
+// - Extracts the "event" and "data" fields from the message.
+// - Formats the parsed fields into an SSE-compliant message.
+// - Broadcasts the formatted message to all connected clients via the distributor.
 func (m *MBTAStreamSource) processSSE(event string) {
-	// Split the event string into individual lines to process each line separately.
+	// Split the raw event string into lines for processing.
 	lines := strings.Split(event, "\n")
 
-	var eventType string   // Holds the value of the "event" field in the SSE message.
-	var eventData []string // Accumulates the "data" lines for the SSE message.
+	var eventType string   // Holds the extracted "event" field value.
+	var eventData []string // Accumulates "data" field values.
 
-	// Iterate over each line in the event to extract the event type and data lines.
+	// Process each line to extract relevant SSE fields.
 	for _, line := range lines {
 		if strings.HasPrefix(line, "event:") {
-			// If the line starts with "event:", extract and trim the event type value.
+			// Extract and trim the value of the "event" field.
 			eventType = strings.TrimSpace(line[len("event:"):])
 		} else if strings.HasPrefix(line, "data:") {
-			// If the line starts with "data:", extract and trim the data value.
-			// Append the trimmed value to the eventData slice.
+			// Extract and trim the value of the "data" field and add it to eventData.
 			eventData = append(eventData, strings.TrimSpace(line[len("data:"):]))
 		}
 	}
 
-	// Combine all accumulated data lines into a single string, separated by newline characters.
+	// Combine all data lines into a single string, separated by newline characters.
 	fullData := strings.Join(eventData, "\n")
 
-	// If there is data to send, format it as an SSE-compliant message and broadcast it.
+	// If data exists, format and broadcast the SSE-compliant message.
 	if fullData != "" {
-		// Format the SSE message with the extracted event type and data.
+		// Format the SSE message with the event type and data.
 		formattedEvent := fmt.Sprintf("event: %s\ndata: %s\n\n", eventType, fullData)
 
-		// Send the formatted event to all connected clients via the Broadcast method.
+		// Broadcast the formatted message to all connected clients.
 		m.distributor.Broadcast(formattedEvent)
 	}
 }
