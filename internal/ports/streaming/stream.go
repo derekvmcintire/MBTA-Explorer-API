@@ -20,4 +20,5 @@ type StreamDistributor interface {
 type StreamManager interface {
 	StreamSource
 	StreamDistributor
+	EnsureStreaming(url, apiKey string)
 }

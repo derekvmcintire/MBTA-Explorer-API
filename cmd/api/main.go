@@ -35,9 +35,11 @@ func main() {
 	// Initialize a new Gorilla Mux router
 	r := mux.NewRouter()
 
+	// Initialize the stream manager with the MBTA stream source and client distributor
 	distributor := distribute.NewClientDistributor()
 	source := mbta.NewMBTAStreamSource(distributor)
 	sm := usecases.NewStreamManagerUseCase(source, distributor)
+
 	// Register the routes with the router
 	apiHttp.RegisterRoutes(r, mbtaApiHelper, sm)
 

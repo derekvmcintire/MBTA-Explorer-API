@@ -2,13 +2,14 @@ package usecases
 
 import (
 	"context"
+	ports "explorer/internal/ports/streaming"
 )
 
 type StreamVehiclesUseCase struct {
-	streamManager *StreamManagerUseCase
+	streamManager ports.StreamManager
 }
 
-func NewStreamVehiclesUseCase(sm *StreamManagerUseCase) *StreamVehiclesUseCase {
+func NewStreamVehiclesUseCase(sm ports.StreamManager) *StreamVehiclesUseCase {
 	return &StreamVehiclesUseCase{
 		streamManager: sm,
 	}
@@ -21,7 +22,7 @@ func (uc *StreamVehiclesUseCase) StreamSetup(url, apiKey string) chan string {
 
 	// Create and register client channel
 	clientChan := make(chan string, 100)
-	uc.streamManager.Distributor.AddClient(clientChan)
+	uc.streamManager.AddClient(clientChan)
 
 	return clientChan
 }
@@ -30,6 +31,6 @@ func (uc *StreamVehiclesUseCase) StreamSetup(url, apiKey string) chan string {
 func (uc *StreamVehiclesUseCase) HandleDisconnect(ctx context.Context, clientChan chan string) {
 	go func() {
 		<-ctx.Done()
-		uc.streamManager.Distributor.RemoveClient(clientChan)
+		uc.streamManager.RemoveClient(clientChan)
 	}()
 }
