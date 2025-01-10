@@ -1,14 +1,14 @@
 package http
 
 import (
-	"explorer/internal/adapters/api/handlers"
+	"explorer/internal/adapters/mbta/api/handlers"
 	"explorer/internal/core"
-	"explorer/internal/infrastructure/stream"
+	"explorer/internal/usecases"
 
 	"github.com/gorilla/mux"
 )
 
-func RegisterRoutes(router *mux.Router, mbtaApiHelper core.MbtaApiHelper, sm *stream.StreamManager) {
+func RegisterRoutes(router *mux.Router, mbtaApiHelper core.MbtaApiHelper, sm *usecases.StreamManagerUseCase) {
 
 	streamHandler := handlers.NewStreamVehiclesHandler(sm)
 	sotpsHandler := handlers.FetchRouteStops(mbtaApiHelper)

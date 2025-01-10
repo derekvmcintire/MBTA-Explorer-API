@@ -1,4 +1,4 @@
-package stream
+package mbta
 
 import (
 	"bufio"
@@ -9,7 +9,7 @@ import (
 )
 
 // scanStream processes the response body stream and handles server-sent events (SSE).
-func (sm *StreamManager) scanStream(ctx context.Context, responseBody io.Reader) {
+func (m *MBTAStreamSource) scanStream(ctx context.Context, responseBody io.Reader) {
 	scanner := bufio.NewScanner(responseBody)
 	buffer := make([]byte, 1024*1024) // Set a 1 MB buffer size
 	scanner.Buffer(buffer, len(buffer))
@@ -26,7 +26,7 @@ func (sm *StreamManager) scanStream(ctx context.Context, responseBody io.Reader)
 			if line == "" {
 				if len(eventBuffer) > 0 {
 					fullEvent := strings.Join(eventBuffer, "\n") // Combine buffered lines
-					sm.processSSE(fullEvent)                     // Process the complete event
+					m.processSSE(fullEvent)                      // Process the complete event
 					eventBuffer = []string{}                     // Clear the buffer
 				}
 				continue

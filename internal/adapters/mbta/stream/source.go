@@ -1,15 +1,26 @@
-package stream
+package mbta
 
 import (
 	"context"
+	ports "explorer/internal/ports/streaming"
 	"log"
 	"net/http"
 	"time"
 )
 
+type MBTAStreamSource struct {
+	distributor ports.StreamDistributor
+}
+
+func NewMBTAStreamSource(distributor ports.StreamDistributor) *MBTAStreamSource {
+	return &MBTAStreamSource{
+		distributor: distributor,
+	}
+}
+
 // createRequest creates an HTTP request for streaming data from the MBTA API.
 // It sets the appropriate headers for the request, including the API key and content type.
-func (sm *StreamManager) createRequest(ctx context.Context, url, apiKey string) (*http.Request, error) {
+func (m *MBTAStreamSource) createRequest(ctx context.Context, url, apiKey string) (*http.Request, error) {
 	// Create a new HTTP GET request with the provided context, URL, and no body (nil)
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
@@ -23,29 +34,8 @@ func (sm *StreamManager) createRequest(ctx context.Context, url, apiKey string) 
 	return req, nil
 }
 
-// AddClient adds a new client channel to the manager to receive data updates.
-// It locks the client list to ensure thread safety during modification.
-func (sm *StreamManager) AddClient(client chan string) {
-	sm.clientsMutex.Lock()          // Lock to ensure safe access to the clients map
-	defer sm.clientsMutex.Unlock()  // Unlock once the operation is done
-	sm.clients[client] = struct{}{} // Add the client channel to the map of active clients
-}
-
-// RemoveClient removes a client channel when they disconnect.
-// It locks the client list to ensure thread safety during modification.
-func (sm *StreamManager) RemoveClient(client chan string) {
-	sm.clientsMutex.Lock()         // Lock to ensure safe access to the clients map
-	defer sm.clientsMutex.Unlock() // Unlock once the operation is done
-	// Check if the client exists in the map
-	if _, ok := sm.clients[client]; ok {
-		// Remove the client from the map and close the channel to signal disconnection
-		delete(sm.clients, client)
-		close(client)
-	}
-}
-
 // stream/utils.go - updated Start method
-func (sm *StreamManager) Start(ctx context.Context, url, apiKey string) {
+func (m *MBTAStreamSource) Start(ctx context.Context, url, apiKey string) {
 	go func() {
 		for {
 			select {
@@ -53,7 +43,7 @@ func (sm *StreamManager) Start(ctx context.Context, url, apiKey string) {
 				log.Println("Context cancelled, stopping stream")
 				return
 			default:
-				respBody, err := sm.fetchStream(ctx, url, apiKey)
+				respBody, err := m.fetchStream(ctx, url, apiKey)
 				if err != nil {
 					log.Printf("Failed to fetch stream: %v", err)
 					// Add a small delay before retrying to prevent tight loops on persistent errors
@@ -66,7 +56,7 @@ func (sm *StreamManager) Start(ctx context.Context, url, apiKey string) {
 				go func() {
 					defer close(processDone)
 					defer respBody.Close()
-					sm.scanStream(ctx, respBody)
+					m.scanStream(ctx, respBody)
 				}()
 
 				// Wait for either context cancellation or stream processing to finish
@@ -81,11 +71,4 @@ func (sm *StreamManager) Start(ctx context.Context, url, apiKey string) {
 			}
 		}
 	}()
-}
-
-// Stop stops the stream manager and signals all processes to stop.
-// It closes the stop channel to initiate the shutdown process.
-func (sm *StreamManager) Stop() {
-	// Close the stop channel to signal all goroutines to stop
-	close(sm.stop)
 }

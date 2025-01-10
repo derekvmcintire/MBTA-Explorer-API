@@ -1,4 +1,4 @@
-package stream
+package mbta
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 // processSSE parses a complete Server-Sent Events (SSE) message and broadcasts it to all connected clients.
 // This function processes the raw event string, extracts relevant fields, and formats them
 // into an SSE-compliant message before sending it to the Broadcast function.
-func (sm *StreamManager) processSSE(event string) {
+func (m *MBTAStreamSource) processSSE(event string) {
 	// Split the event string into individual lines to process each line separately.
 	lines := strings.Split(event, "\n")
 
@@ -36,6 +36,6 @@ func (sm *StreamManager) processSSE(event string) {
 		formattedEvent := fmt.Sprintf("event: %s\ndata: %s\n\n", eventType, fullData)
 
 		// Send the formatted event to all connected clients via the Broadcast method.
-		sm.Broadcast(formattedEvent)
+		m.distributor.Broadcast(formattedEvent)
 	}
 }
