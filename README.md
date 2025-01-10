@@ -110,71 +110,74 @@ make test
 
 ## Project Structure
 
-cmd/
-└── api/
-└── main.go // Entry point of the application
+```
+📂 cmd/
+└── 📂 api/
+    └── 📄 main.go                        // Entry point of the application
 
-internal/
-├── adapters/
-│ ├── data/
-│ │ ├── fetch_data.go // Generic fetch helper for HTTP requests
-│ │ ├── mbta_api.go // MBTA client for API data retrieval
-│ │ └── memcached.go // Memcached client for caching responses
-│ ├── distribute/
-│ │ └── distributor.go // Stream distribution manager
-│ └── http/
-│ └── routes.go // API route definitions
-│ └── mbta/
-│ ├── api/
-│ │ ├── handlers/
-│ │ │ ├── live_position_handler.go // Handles /api/live for initial live data
-│ │ │ ├── route_shapes_handler.go // Handles fetching route shapes
-│ │ │ ├── route_stops_handler.go // Handles fetching route stops
-│ │ │ ├── routes_handler.go // Handles fetching routes
-│ │ │ └── stream_vehicles_handler.go // Handles /stream/vehicles for live updates
-│ │ └── response/
-│ │ └── get_subway_response.go // Defines GetRouteResponse struct
-│ ├── stream/
-│ ├── fetch.go // Helper for fetching stream data
-│ ├── process.go // Processes incoming stream
-│ ├── scanner.go // Scans incoming stream
-│ └── source.go // Stream source manager
-├── constants/
-│ └── stream.go // URL constants for live vehicle streaming
-├── core/
-│ ├── domain/
-│ │ ├── models/
-│ │ │ ├── route.go // Domain model for a route
-│ │ │ ├── shape.go // Domain model for a shape
-│ │ │ ├── stop.go // Domain model for a stop
-│ │ │ └── vehicle.go // Domain model for a vehicle
-│ ├── usecases/
-│ │ ├── fetch_from_mbta.go // Logic for fetching MBTA data
-│ │ ├── mbta_helper.go // Helper for MBTA API data
-│ │ ├── stream_manager.go // Combines stream manager and distributor
-│ │ └── stream_from_mbta.go // Logic for streaming MBTA data
-│ └── stream_manager.go // Stream manager logic
-├── infrastructure/
-│ ├── config/
-│ │ ├── mbta_api_config.go // MBTA API configuration (e.g., GetAPIKey)
-│ │ └── memcached_config.go // Memcached configuration
-│ ├── middleware/
-│ └── cors.go // CORS middleware
-├── pkg/
-│ └── decode_polyline.go // Utility for decoding polyline data
-├── ports/
-│ ├── data/
-│ │ └── api.go // Defines MBTAClient interface
-│ ├── streaming/
-│ └── stream.go // Interfaces for StreamManager and related managers
+📂 internal/
+├── 📂 adapters/
+│   ├── 📂 data/
+│   │   ├── 📄 fetch_data.go              // Generic fetch helper for HTTP requests
+│   │   ├── 📄 mbta_api.go                // MBTA client for API data retrieval
+│   │   └── 📄 memcached.go               // Memcached client for caching responses
+│   ├── 📂 distribute/
+│   │   └── 📄 distributor.go             // Stream distribution manager
+│   └── 📂 http/
+│       └── 📄 routes.go                  // API route definitions
+│   └── 📂 mbta/
+│       ├── 📂 api/
+│       │   ├── 📂 handlers/
+│       │   │   ├── 📄 live_position_handler.go  // Handles /api/live for initial live data
+│       │   │   ├── 📄 route_shapes_handler.go   // Handles fetching route shapes
+│       │   │   ├── 📄 route_stops_handler.go    // Handles fetching route stops
+│       │   │   ├── 📄 routes_handler.go         // Handles fetching routes
+│       │   │   └── 📄 stream_vehicles_handler.go // Handles /stream/vehicles for live updates
+│       │   └── 📂 response/
+│       │       └── 📄 get_subway_response.go    // Defines GetRouteResponse struct
+│       ├── 📂 stream/
+│           ├── 📄 fetch.go                      // Helper for fetching stream data
+│           ├── 📄 process.go                    // Processes incoming stream
+│           ├── 📄 scanner.go                    // Scans incoming stream
+│           └── 📄 source.go                     // Stream source manager
+├── 📂 constants/
+│   └── 📄 stream.go                        // URL constants for live vehicle streaming
+├── 📂 core/
+│   ├── 📂 domain/
+│   │   ├── 📂 models/
+│   │   │   ├── 📄 route.go                // Domain model for a route
+│   │   │   ├── 📄 shape.go                // Domain model for a shape
+│   │   │   ├── 📄 stop.go                 // Domain model for a stop
+│   │   │   └── 📄 vehicle.go              // Domain model for a vehicle
+│   ├── 📂 usecases/
+│   │   ├── 📄 fetch_from_mbta.go          // Logic for fetching MBTA data
+│   │   ├── 📄 mbta_helper.go              // Helper for MBTA API data
+│   │   ├── 📄 stream_manager.go           // Combines stream manager and distributor
+│   │   └── 📄 stream_from_mbta.go         // Logic for streaming MBTA data
+│   └── 📄 stream_manager.go               // Stream manager logic
+├── 📂 infrastructure/
+│   ├── 📂 config/
+│   │   ├── 📄 mbta_api_config.go          // MBTA API configuration (e.g., GetAPIKey)
+│   │   └── 📄 memcached_config.go         // Memcached configuration
+│   ├── 📂 middleware/
+│       └── 📄 cors.go                     // CORS middleware
+├── 📂 pkg/
+│   └── 📄 decode_polyline.go              // Utility for decoding polyline data
+├── 📂 ports/
+│   ├── 📂 data/
+│   │   └── 📄 api.go                      // Defines MBTAClient interface
+│   ├── 📂 streaming/
+│       └── 📄 stream.go                   // Interfaces for StreamManager and related managers
 
-Root Files:
-├── .env // Environment variables
-├── .gitignore // Git ignore rules
-├── go.mod // Go module definition
-├── go.sum // Go module dependency checksums
-├── Makefile // Build automation commands
-└── README.md // Project documentation
+📂 Root Files:
+├── 📄 .env                                // Environment variables
+├── 📄 .gitignore                          // Git ignore rules
+├── 📄 go.mod                              // Go module definition
+├── 📄 go.sum                              // Go module dependency checksums
+├── 📄 Makefile                            // Build automation commands
+└── 📄 README.md                           // Project documentation
+
+```
 
 ## Contributing
 
