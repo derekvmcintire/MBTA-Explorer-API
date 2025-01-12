@@ -63,7 +63,7 @@ MBTA_API_KEY=your_mbta_api_key_here
   
 - **Example Request**:
   ```bash
-  curl --location 'http://localhost:8080/api/routes?route_ids=Red%2COrange%2CBlue%2CGreen-B%2CGreen-C%2CGreen-D%2CGreen-E%2CMattapan'
+  curl --location 'http://localhost:8080/api/routes?route_ids=Mattapan'
   ```
   
 - **Example Response**:
