@@ -1,9 +1,10 @@
 package models
 
 type Vehicle struct {
-	ID         string            `json:"id"`
-	Route      string            `json:"route"`
-	Attributes VehicleAttributes `json:"attributes"`
+	ID            string            `json:"id"`
+	Route         string            `json:"route"`
+	Attributes    VehicleAttributes `json:"attributes"`
+	Relationships *VehicleRelations `json:"relationships,omitempty"`
 }
 
 type VehicleAttributes struct {
@@ -25,6 +26,19 @@ type VehicleCarriages struct {
 	OccupancyStatus     string `json:"occupancy_status"`
 	OccupancyPercentage int    `json:"occupancy_percentage"`
 	Label               string `json:"label"`
+}
+
+type VehicleRelations struct {
+	Route RouteRelation `json:"route"`
+}
+
+type RouteRelation struct {
+	Data RouteData `json:"data"`
+}
+
+type RouteData struct {
+	ID   string `json:"id"`
+	Type string `json:"type"`
 }
 
 type VehicleResponse struct {

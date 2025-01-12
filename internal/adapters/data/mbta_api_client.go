@@ -84,23 +84,26 @@ func (m *mbtaClientImpl) FetchStops(routeID string) ([]models.Stop, error) {
 
 // FetchLiveData fetches the live vehicle data for a given route ID from the MBTA API
 func (m *mbtaClientImpl) FetchLiveData(routeID string) ([]models.Vehicle, error) {
-	// Format the endpoint URL to include the route ID in the query parameters
 	endpoint := fmt.Sprintf("%s/vehicles?filter[route]=%s", mbtaAPIBaseUrl, routeID)
+	log.Println("endpoint is: ", endpoint)
 
-	// Call fetchData to get the raw data from the API
 	data, err := m.fetchData(endpoint)
 	if err != nil {
-		return nil, err // Return the error if fetching the data fails
+		return nil, fmt.Errorf("error fetching data: %w", err)
 	}
 
-	// Declare a variable to hold the list of vehicles
-	var vehicles models.VehicleResponse
-
-	// Unmarshal the raw JSON data into the vehicles slice
-	if err := json.Unmarshal(data, &vehicles); err != nil {
-		return nil, err // Return the error if unmarshalling fails
+	var response models.VehicleResponse
+	if err := json.Unmarshal(data, &response); err != nil {
+		return nil, fmt.Errorf("error unmarshaling response: %w", err)
 	}
 
-	// Return the list of vehicles
-	return vehicles.Data, nil
+	// Populate the route field from relationships
+	for i := range response.Data {
+		if response.Data[i].Relationships != nil &&
+			response.Data[i].Relationships.Route.Data.ID != "" {
+			response.Data[i].Route = response.Data[i].Relationships.Route.Data.ID
+		}
+	}
+
+	return response.Data, nil
 }
