@@ -280,7 +280,7 @@ data: {
   },
   "type": "vehicle"
 }
-
+```
 
 ## Configuration
 
