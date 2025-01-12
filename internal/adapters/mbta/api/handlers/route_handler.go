@@ -9,9 +9,9 @@ import (
 	"strings"  // Import strings package to handle string operations like splitting
 )
 
-// FetchRoutes is an HTTP handler function that returns all relevant data (stops and shapes)
+// RouteHandler is an HTTP handler function that returns all relevant data (stops and shapes)
 // for a list of route IDs provided in the request query parameters.
-func FetchRoutes(useCases usecases.MbtaApiHelper) http.HandlerFunc {
+func RouteHandler(useCases usecases.MbtaApiHelper) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		// Extract the route IDs from the query parameter (e.g., /routes?route_ids=Red,Orange,Blue)
