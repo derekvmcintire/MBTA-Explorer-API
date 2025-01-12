@@ -49,9 +49,15 @@ MBTA_API_KEY=your_mbta_api_key_here
 ### Static Data Endpoints
 
 #### Fetch Routes
-- **URL**: `GET /api/routes`
+- **`GET /api/routes`** Fetches MBTA route shapes and stops. It makes two separate requests to the MBTA V3 API. First to the `/stops` endpoint and secondly to the `/shapes` endpoint. It then combines the data and returns it in a single request.
 
-Fetches MBTA route shapes and stops. It makes two separate requests to the MBTA V3 API first to the `/stops` endpoint and secondly to the `/shapes` endpoint. It then combines the data and returns it in a single request.
+- **Compression**: `GET /api/routes` returns a compressed response using `gzip`. Most modern browsers will handle this automatically, but be sure your client is setting the appropriate header:
+
+  ```typescript
+  headers: {
+    'Accept-Encoding': 'gzip'
+  }
+  ```
   
 - **Example Request**:
   ```bash
