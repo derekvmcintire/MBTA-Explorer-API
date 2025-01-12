@@ -3,6 +3,7 @@ package http
 import (
 	"explorer/internal/adapters/mbta/api/handlers"
 	"explorer/internal/core/usecases"
+	"explorer/internal/infrastructure/middleware"
 	ports "explorer/internal/ports/streaming"
 
 	"github.com/gorilla/mux"
@@ -17,16 +18,16 @@ import (
 func RegisterRoutes(router *mux.Router, mbtaApiHelper usecases.MbtaApiHelper, sm ports.StreamManager) {
 
 	// Initialize handlers for each route
-	streamHandler := handlers.NewStreamVehiclesHandler(sm)            // Handles streaming of vehicle data
-	sotpsHandler := handlers.FetchRouteStops(mbtaApiHelper)           // Handles fetching route stops
-	shapesHandler := handlers.FetchRouteShapes(mbtaApiHelper)         // Handles fetching route shapes
-	routesHandler := handlers.FetchRoutes(mbtaApiHelper)              // Handles fetching available routes
-	livePositionHandler := handlers.UpdateLivePosition(mbtaApiHelper) // Handles live vehicle positions
+	streamHandler := handlers.NewStreamVehiclesHandler(sm)                                        // Handles streaming of vehicle data
+	sotpsHandler := middleware.CompressHandler(handlers.FetchRouteStops(mbtaApiHelper))           // Handles fetching route stops
+	shapesHandler := middleware.CompressHandler(handlers.FetchRouteShapes(mbtaApiHelper))         // Handles fetching route shapes
+	livePositionHandler := middleware.CompressHandler(handlers.UpdateLivePosition(mbtaApiHelper)) // Handles live vehicle positions
+	routesHandler := middleware.CompressHandler(handlers.FetchRoutes(mbtaApiHelper))
 
 	// Define HTTP endpoints and their corresponding handlers
-	router.Handle("/stream/vehicles", streamHandler)                   // Streaming endpoint for vehicle data
-	router.HandleFunc("/api/stops", sotpsHandler).Methods("GET")       // Fetch route stops via GET
-	router.HandleFunc("/api/shapes", shapesHandler).Methods("GET")     // Fetch route shapes via GET
-	router.HandleFunc("/api/routes", routesHandler).Methods("GET")     // Fetch route list via GET
-	router.HandleFunc("/api/live", livePositionHandler).Methods("GET") // Fetch live vehicle positions via GET
+	router.Handle("/stream/vehicles", streamHandler)               // Streaming endpoint for vehicle data
+	router.Handle("/api/stops", sotpsHandler).Methods("GET")       // Fetch route stops via GET
+	router.Handle("/api/shapes", shapesHandler).Methods("GET")     // Fetch route shapes via GET
+	router.Handle("/api/routes", routesHandler).Methods("GET")     // Fetch route list via GET
+	router.Handle("/api/live", livePositionHandler).Methods("GET") // Fetch live vehicle positions via GET
 }
