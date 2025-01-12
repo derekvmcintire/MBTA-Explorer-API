@@ -1,6 +1,8 @@
 # MBTA Explorer API Documentation
 
 ## Overview
+This is a work in progress.
+
 The MBTA Explorer API is provides real-time and static data related to the MBTA subway system. It is powered by the [MBTA V3 API](https://www.mbta.com/developers/v3-api) and offers live streaming of subway vehicle positions, caching for performance, and polyline decoding for route mapping.
 
 ## Features
