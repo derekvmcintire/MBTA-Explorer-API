@@ -5,6 +5,8 @@ This is a work in progress.
 
 The MBTA Explorer API provides real-time and static data related to the MBTA subway system. It is powered by the [MBTA V3 API](https://www.mbta.com/developers/v3-api) and offers live streaming of subway vehicle positions, caching for performance, and polyline decoding for route mapping.
 
+---
+
 ## Features
 - **Integration with MBTA V3 API**: Fetches and streams MBTA subway data directly from the official API.
 - **Live Streaming**: Streams live vehicle positions from a single connection to the MBTA API, forwarding data to multiple clients.
@@ -12,6 +14,8 @@ The MBTA Explorer API provides real-time and static data related to the MBTA sub
 - **Polyline Decoding**: Decodes polyline data for accurate route visualization.
 - **Caching**: Utilizes Memcached for performance improvement.
 - **CORS Configuration**: Configured for a frontend origin at `http://localhost:5173` by default.
+
+---
 
 ## Installation
 
@@ -46,14 +50,15 @@ MBTA_API_KEY=your_mbta_api_key_here
    make run
    ```
 
+---
+
 ## Endpoints
 
 ### Static Data Endpoints
 
-#### Fetch Routes
-- **`GET /api/routes`** Fetches MBTA route shapes and stops. It makes two separate requests to the MBTA V3 API. First to the `/stops` endpoint and secondly to the `/shapes` endpoint. It then combines the data and returns it in a single request.
+- **`GET /api/routes?route_ids={route_id,route_id}`** Fetches MBTA route shapes and stops. Accepts a list of comma separated route ids: `?route_ids=Red,Orange,Green-E,Mattapan`. It makes two separate requests to the MBTA V3 API. First to the `/stops` endpoint and secondly to the `/shapes` endpoint. It then combines the data and returns it in a single request.
 
-- **Compression**: `GET /api/routes` returns a compressed response using `gzip`. Most modern browsers will handle this automatically, but be sure your client is setting the appropriate header:
+- **Compression**: returns a compressed response using `gzip`. Most modern browsers will handle this automatically, but be sure your client is setting the appropriate header:
 
   ```typescript
   headers: {
@@ -141,33 +146,54 @@ MBTA_API_KEY=your_mbta_api_key_here
   ]
   ```
 
-  # LEFT OFF HERE, NEED TO UPDATE BELOW THIS LINE
+---
 
+- **`GET /api/live?route_ids={route_id}`**: Fetches the the initial value of live data. Since the streaming endpoint is not guaranteed to send a "reset" event first, initial live data is fetched to populate the map with initial vehicle data. Accepts a list of comma separated route ids: `?route_ids=Red,Orange,Green-E,Mattapan`.
 
-
-  ---
-  ---
-  ---
-
-#### Fetch Route Shapes
-- **URL**: `GET /api/shapes?route_id={route_id}`
-- **Description**: Fetches the shape of a route for mapping.
 - **Example Request**:
   ```bash
-  curl -X GET http://localhost:8080/api/shapes?route_id=Red
+  curl --location 'http://localhost:8080/api/live?route_id=Mattapan'
   ```
+  
 - **Example Response**:
   ```json
-  {
-    "route_id": "Red",
-    "shapes": [
-      {
-        "id": "shape_7001",
-        "polyline": "_p~iF~ps|U_ulLnnqC_mqNvxq`@"
-      }
-    ]
-  }
+  [
+    {
+        "id": "G-10038",
+        "route": "Mattapan",
+        "attributes": {
+            "bearing": 90,
+            "carriages": [
+                {
+                    "occupancy_status": "NO_DATA_AVAILABLE",
+                    "occupancy_percentage": 0,
+                    "label": "3263"
+                }
+            ],
+            "current_status": "IN_TRANSIT_TO",
+            "current_stop_sequence": 0,
+            "direction": 0,
+            "label": "3263",
+            "latitude": 42.26775,
+            "longitude": -71.09122,
+            "occupancy_status": "",
+            "revenue": "REVENUE",
+            "speed": 0,
+            "updated_at": "2025-01-12T17:29:54-05:00"
+        },
+        "relationships": {
+            "route": {
+                "data": {
+                    "id": "Mattapan",
+                    "type": "route"
+                }
+            }
+        }
+    }
+   ]
   ```
+
+---
 
 ### Streaming Endpoints
 
@@ -179,24 +205,82 @@ MBTA_API_KEY=your_mbta_api_key_here
   curl -N http://localhost:8080/stream/vehicles
   ```
 - **Example Response (streamed)**:
-  ```json
-  {
-    "id": "vehicle_1234",
-    "route_id": "Red",
-    "current_status": "IN_TRANSIT_TO",
-    "latitude": 42.320685,
-    "longitude": -71.052391,
-    "direction_id": 0
-  }
-  {
-    "id": "vehicle_5678",
-    "route_id": "Orange",
-    "current_status": "STOPPED_AT",
-    "latitude": 42.363021,
-    "longitude": -71.05829,
-    "direction_id": 1
-  }
-  ```
+
+```text
+event: update
+data: {
+  "attributes": {
+    "bearing": 235,
+    "carriages": [
+      {
+        "label": "0706",
+        "occupancy_percentage": null,
+        "occupancy_status": "NO_DATA_AVAILABLE"
+      },
+      {
+        "label": "0707",
+        "occupancy_percentage": null,
+        "occupancy_status": "NO_DATA_AVAILABLE"
+      },
+      {
+        "label": "0777",
+        "occupancy_percentage": null,
+        "occupancy_status": "NO_DATA_AVAILABLE"
+      },
+      {
+        "label": "0776",
+        "occupancy_percentage": null,
+        "occupancy_status": "NO_DATA_AVAILABLE"
+      },
+      {
+        "label": "0745",
+        "occupancy_percentage": null,
+        "occupancy_status": "NO_DATA_AVAILABLE"
+      },
+      {
+        "label": "0744",
+        "occupancy_percentage": null,
+        "occupancy_status": "NO_DATA_AVAILABLE"
+      }
+    ],
+    "current_status": "INCOMING_AT",
+    "current_stop_sequence": 40,
+    "direction_id": 0,
+    "label": "0706",
+    "latitude": 42.38773,
+    "longitude": -71.00221,
+    "occupancy_status": null,
+    "revenue": "REVENUE",
+    "speed": null,
+    "updated_at": "2025-01-11T21:13:39-05:00"
+  },
+  "id": "B-5480C49B",
+  "links": {
+    "self": "/vehicles/B-5480C49B"
+  },
+  "relationships": {
+    "route": {
+      "data": {
+        "id": "Blue",
+        "type": "route"
+      }
+    },
+    "stop": {
+      "data": {
+        "id": "70051",
+        "type": "stop"
+      }
+    },
+    "trip": {
+      "data": {
+        "id": "67269314",
+        "type": "trip"
+      }
+    }
+  },
+  "type": "vehicle"
+}
+
 
 ## Configuration
 
@@ -208,6 +292,8 @@ Ensure Memcached is running. For Docker:
 ```bash
 docker run --name memcached -d -p 11211:11211 memcached
 ```
+
+---
 
 ## Development
 
@@ -226,16 +312,24 @@ make lint
 make test
 ```
 
+---
+
 ## Future Enhancements
 - **Dynamic Streaming**: Support for additional transit types such as buses and commuter rail.
 - **Frontend Integration**: Sample frontend to visualize live data.
 - **Docker Support**: Include Docker setup for easier deployment.
 
+---
+
 ## Contributing
 Contributions are welcome! Please open a pull request with a detailed description of your changes.
 
+---
+
 ## License
 This project is licensed under the [MIT License](LICENSE).
+
+---
 
 ## Contact
 For questions or support, open an issue in the repository.
